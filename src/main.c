@@ -31,6 +31,8 @@ typedef struct s_color
     int tp;
 }   t_color;
 
+void draw_julia(t_fractal *fractal);
+
 // ================================ MANDELBROT ===========================
 void draw_mandelbrot(t_fractal *fractal)
 {
@@ -67,6 +69,7 @@ void draw_mandelbrot(t_fractal *fractal)
         fractal->x_coord = 0;
         fractal->y_coord++;
     }
+    mlx_image_to_window(fractal->mlx, fractal->img, 0, 0);
 }
 
 
@@ -92,6 +95,34 @@ int foo(int continuous_index){
 
 //////////////////////////////// tmp ////////////////////////////
 
+void my_scrollhook(double xdelta, double ydelta, void* param)
+{
+    t_fractal *fractal;
+
+    fractal = param;
+	// Simple up or down detection.
+	if (ydelta > 0)
+    {
+        puts("Up!");
+		fractal->zoom --;
+        printf("%f", fractal->zoom);
+    }
+	else if (ydelta < 0)
+    {
+        puts("Down!");
+		fractal->zoom ++;
+    }
+    fractal->y_coord = 0;
+    fractal->x_coord = 0; 
+    draw_julia(fractal);
+	// // Can also detect a mousewheel that goes along the X (e.g: MX Master 3)
+	// if (xdelta < 0)
+	// 	puts("Sliiiide to the left!");
+	// else if (xdelta > 0)
+	// 	puts("Sliiiide to the right!");
+}
+
+
 // ================================ JULIA ===========================
 void draw_julia(t_fractal *fractal)
 {
@@ -100,6 +131,7 @@ void draw_julia(t_fractal *fractal)
     double temp;
     int i;
     
+    printf("++++");
     while (fractal->y_coord < 4 * fractal->n)
     {
         y = 2 - (fractal->y_coord / fractal->n);
@@ -107,8 +139,8 @@ void draw_julia(t_fractal *fractal)
         while (fractal->x_coord < 4 * fractal->n)
         {
             x = - 2 + (fractal->x_coord / fractal->n);
-            fractal->a_real = x/1.2;
-            fractal->b_img = y/1.2;
+            fractal->a_real = x/fractal->zoom;
+            fractal->b_img = y/fractal->zoom;
             i = 1;
             while(i <= fractal->max_iterations)
             {
@@ -120,24 +152,26 @@ void draw_julia(t_fractal *fractal)
                 i++;
             }
             if (i == fractal->max_iterations + 1)
-                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0x00F0F0FF); //black
+                mlx_put_pixel(fractal->img, fractal->x_coord, fractal->y_coord, 0x000000FF); //black
             else
-                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord,  foo(i + 150)); //white
+                mlx_put_pixel(fractal->img, fractal->x_coord, fractal->y_coord,  foo(i + 250)); //white
             fractal->x_coord++;
         }
         fractal->x_coord = 0;
         fractal->y_coord++;
     }
+    mlx_image_to_window(fractal->mlx, fractal->img, 0, 0);
 }
 
 void    fractal_init(t_fractal *fractal)
 {
     fractal->n = 250;
-    fractal->max_iterations = 1000;
+    fractal->max_iterations = 100;
     fractal->x_coord = 0;
     fractal->y_coord = 0;
     fractal->julia_x = -0.70176;
     fractal->julia_y = -0.3842;
+    fractal->zoom = 1;
 }
 
 static void ft_error(void)
@@ -146,7 +180,7 @@ static void ft_error(void)
 	exit(EXIT_FAILURE);
 }
 
-int32_t	main(void)
+int32_t	main(int argc, char **argv)
 {
     t_fractal fractal;
 
@@ -160,9 +194,9 @@ int32_t	main(void)
 		ft_error();
 
     // draw_mandelbrot(&fractal);
-    draw_julia(&fractal);
-    mlx_image_to_window(fractal.mlx, fractal.img, 0, 0);
 
+    mlx_scroll_hook(fractal.mlx, &my_scrollhook, &fractal);
+    draw_julia(&fractal);
 	mlx_loop(fractal.mlx);
 	mlx_delete_image(fractal.mlx, fractal.img);
 	mlx_terminate(fractal.mlx);
