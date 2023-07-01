@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <math.h>
 #include "../MLX42/include/MLX42/MLX42.h"
 
 //  gcc src/main.c libmlx42.a -Iinclude -ldl -lglfw -pthread -lm 
 
 typedef struct s_fractal
-{
-    
+{ 
     mlx_image_t *img;
     int img_w;
     long long max_iterations;
@@ -20,8 +20,16 @@ typedef struct s_fractal
     double n;
     double julia_x;
     double julia_y;
+    double zoom;
 } t_fractal;
 
+typedef struct s_color
+{
+    int r;
+    int g;
+    int b;
+    int tp;
+}   t_color;
 
 // ================================ MANDELBROT ===========================
 void draw_mandelbrot(t_fractal *fractal)
@@ -53,13 +61,36 @@ void draw_mandelbrot(t_fractal *fractal)
             if (i == fractal->max_iterations + 1)
                 mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0xFFFFFFFF); //black
             else
-                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0x000000FF); //white
+                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0x000000FF * i); //white
             fractal->x_coord++;
         }
         fractal->x_coord = 0;
         fractal->y_coord++;
     }
 }
+
+
+//////////////////////////////// tmp ////////////////////////////
+
+union       colour_u
+{
+  unsigned int  number;
+  unsigned char channels[4];
+};
+
+
+int foo(int continuous_index){
+    union colour_u     c;
+
+    c.channels[0] = (unsigned char)(sin(0.016 * continuous_index + 4) * 230 + 25);
+    c.channels[1] = (unsigned char)(sin(0.013 * continuous_index + 2) * 230 + 25);
+    c.channels[2] = (unsigned char)(sin(0.01 * continuous_index + 1) * 230 + 25);
+    c.channels[3] = 255; //alpha bit
+
+    return c.number;
+}
+
+//////////////////////////////// tmp ////////////////////////////
 
 // ================================ JULIA ===========================
 void draw_julia(t_fractal *fractal)
@@ -76,8 +107,8 @@ void draw_julia(t_fractal *fractal)
         while (fractal->x_coord < 4 * fractal->n)
         {
             x = - 2 + (fractal->x_coord / fractal->n);
-            fractal->a_real = x;
-            fractal->b_img = y;
+            fractal->a_real = x/1.2;
+            fractal->b_img = y/1.2;
             i = 1;
             while(i <= fractal->max_iterations)
             {
@@ -89,9 +120,9 @@ void draw_julia(t_fractal *fractal)
                 i++;
             }
             if (i == fractal->max_iterations + 1)
-                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0xFFFFFFFF); //black
+                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0x00F0F0FF); //black
             else
-                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord, 0x000000FF); //white
+                mlx_put_pixel(fractal->img, fractal->x_coord , fractal->y_coord,  foo(i + 150)); //white
             fractal->x_coord++;
         }
         fractal->x_coord = 0;
@@ -101,12 +132,12 @@ void draw_julia(t_fractal *fractal)
 
 void    fractal_init(t_fractal *fractal)
 {
-    fractal->n = 100;
+    fractal->n = 250;
     fractal->max_iterations = 1000;
     fractal->x_coord = 0;
     fractal->y_coord = 0;
-    fractal->julia_x = -0.035;
-    fractal->julia_y = -0.745429;
+    fractal->julia_x = -0.70176;
+    fractal->julia_y = -0.3842;
 }
 
 static void ft_error(void)
