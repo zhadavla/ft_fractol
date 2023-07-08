@@ -7,9 +7,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+#include "affine_transform.h"
 
 typedef struct s_fractal
 {
+    double old_zoom; 
     mlx_image_t *img;
     double img_w;
     long long max_iterations;
@@ -40,3 +42,7 @@ typedef struct s_color
 void draw_julia(void *p);
 void draw_mandelbrot(void *p);
 int get_color(int continuous_index);
+void    fractal_init(t_fractal *fractal);
+void my_scrollhook(double xdelta, double ydelta, void* param);
+void hook(void *ptr);
+void move_julia(void *ptr);

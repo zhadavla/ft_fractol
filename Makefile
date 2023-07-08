@@ -3,7 +3,7 @@ NAME = fractol
 SRC_DIR = srcs
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 
-CFLAGS = -Wall -Wextra -Werror
+# CFLAGS = -Wall -Wextra -Werror
 LIBS = -L. -lmlx42 -ldl -lglfw -pthread -lm
 INCLUDES = -Iinclude
 
