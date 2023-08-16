@@ -8,7 +8,7 @@ UTILS_DIR = $(SRC_DIR)/utils
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
 
 CFLAGS = -Wall -Wextra -Werror -no-pie -O3
-LIBFLAGS = -L. -lmlx42 -lftprintf -lft -ldl -lglfw -pthread -lm 
+LIBFLAGS = -L./lib -lmlx42 -lftprintf -lft -ldl -lglfw -pthread -lm 
 MY_HEADER = ./includes/
 
 OBJ_DIR = obj
